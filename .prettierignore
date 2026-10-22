@@ -4,3 +4,5 @@ dist
 coverage
 next-env.d.ts
 **/test/fixtures
+# Scraped RFQ cache: written by the API, not by hand.
+apps/api/data/

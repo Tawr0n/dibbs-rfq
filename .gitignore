@@ -42,4 +42,6 @@ next-env.d.ts
 
 # nest
 dist/
-data/
+**/data/*
+# One real issue date, committed so the demo works without waiting for (or reaching) DIBBS.
+!apps/api/data/rfqs-2026-10-21.json

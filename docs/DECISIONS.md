@@ -21,4 +21,5 @@ One line per decision: what, why, what was traded off.
 - Sorting is separate from filtering (`sortRfqs`); unknown quantities always sort last, ties break by deadline then solicitation.
 - First click on Qty sorts largest first (big orders are what a vendor scans for); first click on Return by sorts soonest first.
 - Presets are built-in and the same for every vendor; per-vendor saved searches are a next step. A preset replaces all filters (including "Include closed") but keeps the search and sort, and is shown active only while the filters match it exactly.
-- "Small business + drawings" matches the exact "Small Business Set-Aside" value, like the set-aside filter; WOSB/HUBZone/SDVOSB are not folded in (none appeared in live data).
+- "Small business + drawings" matches the exact "Small Business Set-Aside" value, like the set-aside filter; WOSB, HUBZone and SDVOSB set-asides (~15% of a day) are left to the set-aside dropdown, so the preset stays one exact rule.
+- One real day (2026-10-21, 1,671 RFQs) is committed as a cache file: the demo opens instantly and survives DIBBS being down. It goes through the normal cache path, so no database or seed code is needed.
