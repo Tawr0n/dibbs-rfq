@@ -15,7 +15,7 @@ One line per decision: what, why, what was traded off.
 - RFQ type duplicated in web (one file) instead of a shared package: wiring a TS package into both Nest (nodenext ESM) and Next costs more time than it saves here.
 - Server component + `<Suspense>` streams the page shell immediately while a cold date is being scraped.
 - Closed RFQs (return-by date in the past) are hidden by default: live data showed amended RFQs re-issued after their deadline, which a vendor cannot quote.
-- Known limit: some rows report an issue date one day after the requested date (seen live for 2026-10-21). Not yet verified whether DIBBS lists them that way or a postback page drifts; next step is to compare a page fetched directly in DIBBS.
+- Known limit: the DIBBS search (`category=post`) is by post date, so a day's list is "posted on", and most rows carry another issue date (2026-10-22: 98% say the next day; 2026-10-21: 5% match, the rest are the next day or older, likely re-posts). The UI still says "Issue date"; renaming it is a next step.
 - Filters and sort live in the URL via `history.replaceState`, not the Next router: no server round trip per keystroke, and Back does not step through each keystroke. Only non-default values are written, so links stay short; malformed values fall back to defaults.
 - The server parses the URL and hands the initial view to the client component, so a shared link renders filtered on first paint.
 - Sorting is separate from filtering (`sortRfqs`); unknown quantities always sort last, ties break by deadline then solicitation.

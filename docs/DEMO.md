@@ -50,7 +50,7 @@ Repo: https://github.com/Tawr0n/dibbs-rfq
 **Known limits** (say them before they're found)
 
 - A cold day costs ~2.5 min of scraping.
-- Some rows report an issue date one day after the requested date; not yet verified whether that is DIBBS data or paging.
+- The date picks the day DIBBS _posted_ RFQs (its search is by post date), not the RFQ's own issue date. Most rows carry a different issue date: for 2026-10-22, 2,564 of 2,620 say 2026-10-23 (posted the evening before issue); for 2026-10-21, only 90 of 1,671 match, 900 say the next day, the rest are older (likely re-posted, e.g. amended). Next step: label the picker "Posted on" and show the issue date as its own column.
 
 **Next steps**
 
