@@ -9,3 +9,8 @@ One line per decision: what, why, what was traded off.
 - `cheerio` for HTML parsing: robust selectors over the ASP.NET grid instead of regexes.
 - Search and filters run client-side: ~1.7k rows/day fit in memory, so every keystroke is instant with no round trip.
 - Filters picked for a vendor's go/no-go decision: closes within N days (time to quote), set-aside (eligibility), FSC (the vendor's part classes), has tech docs (can it be built), min quantity (is it worth it).
+- Fast award split from set-aside: DIBBS shows both as icons in one cell; ~45% of RFQs are micro-purchase fast awards, a distinct "act now" signal for vendors.
+- Today's list is kept in memory for 30 min (not on disk): DIBBS keeps adding RFQs for the current day.
+- The cache is warmed on API startup so the first visitor does not wait for a cold scrape.
+- RFQ type duplicated in web (one file) instead of a shared package: wiring a TS package into both Nest (nodenext ESM) and Next costs more time than it saves here.
+- Server component + `<Suspense>` streams the page shell immediately while a cold date is being scraped.
