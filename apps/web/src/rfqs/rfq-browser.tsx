@@ -4,18 +4,25 @@ import { useDeferredValue, useMemo, useState } from "react";
 
 import { ALL_RFQS, filterRfqs, type RfqCriteria } from "./filter-rfqs";
 import type { Rfq } from "./rfq";
+import { withCriteria } from "./rfq-search-params";
 
 const CLOSING_WINDOWS = [3, 7, 14, 30];
 
 interface RfqBrowserProps {
   rfqs: Rfq[];
   today?: Date;
+  /** Filters read from the URL the page was opened with. */
+  initialCriteria?: RfqCriteria;
 }
 
-export function RfqBrowser({ rfqs, today: todayProp }: RfqBrowserProps) {
+export function RfqBrowser({
+  rfqs,
+  today: todayProp,
+  initialCriteria = ALL_RFQS,
+}: RfqBrowserProps) {
   // Fixed for the component's lifetime so memoised filtering is not invalidated on every render.
   const [today] = useState(() => todayProp ?? new Date());
-  const [criteria, setCriteria] = useState<RfqCriteria>(ALL_RFQS);
+  const [criteria, setCriteria] = useState(initialCriteria);
   // Keeps typing responsive while ~2k rows re-render.
   const deferredCriteria = useDeferredValue(criteria);
   const visible = useMemo(
@@ -26,8 +33,22 @@ export function RfqBrowser({ rfqs, today: todayProp }: RfqBrowserProps) {
     () => [...new Set(rfqs.map((rfq) => rfq.setAside).filter(Boolean))].sort(),
     [rfqs],
   );
+  const changeCriteria = (next: RfqCriteria) => {
+    setCriteria(next);
+    // replaceState, not the router: no server round trip per keystroke, and Back skips each keystroke.
+    const params = withCriteria(
+      new URLSearchParams(window.location.search),
+      next,
+    );
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      query === "" ? window.location.pathname : `?${query}`,
+    );
+  };
   const update = (patch: Partial<RfqCriteria>) =>
-    setCriteria((current) => ({ ...current, ...patch }));
+    changeCriteria({ ...criteria, ...patch });
 
   return (
     <div className="flex flex-col gap-4">
@@ -142,7 +163,7 @@ export function RfqBrowser({ rfqs, today: todayProp }: RfqBrowserProps) {
           </p>
           <button
             type="button"
-            onClick={() => setCriteria(ALL_RFQS)}
+            onClick={() => changeCriteria(ALL_RFQS)}
             className="rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             Reset filters

@@ -2,6 +2,8 @@ import { Suspense } from "react";
 
 import { fetchRfqs } from "@/rfqs/fetch-rfqs";
 import { RfqBrowser } from "@/rfqs/rfq-browser";
+import type { RfqCriteria } from "@/rfqs/filter-rfqs";
+import { criteriaFromSearchParams } from "@/rfqs/rfq-search-params";
 
 type SearchParams = PageProps<"/">["searchParams"];
 
@@ -67,16 +69,33 @@ function DateForm({ date }: { date?: string }) {
 
 async function RfqSection({ searchParams }: { searchParams: SearchParams }) {
   const date = await requestedDate(searchParams);
+  const criteria = criteriaFromSearchParams(
+    toUrlSearchParams(await searchParams),
+  );
 
   // Keyed by date so picking another day shows the loading state again.
   return (
     <Suspense key={date ?? "latest"} fallback={<Loading />}>
-      <Rfqs date={date} />
+      <Rfqs date={date} criteria={criteria} />
     </Suspense>
   );
 }
 
-async function Rfqs({ date }: { date?: string }) {
+function toUrlSearchParams(params: Awaited<SearchParams>): URLSearchParams {
+  const result = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value === "string") result.set(key, value);
+  }
+  return result;
+}
+
+async function Rfqs({
+  date,
+  criteria,
+}: {
+  date?: string;
+  criteria: RfqCriteria;
+}) {
   const result = await fetchRfqs(date);
 
   return (
@@ -84,7 +103,7 @@ async function Rfqs({ date }: { date?: string }) {
       <h2 className="text-sm text-zinc-600 dark:text-zinc-400">
         Issued on <strong>{result.date}</strong>
       </h2>
-      <RfqBrowser rfqs={result.rfqs} />
+      <RfqBrowser rfqs={result.rfqs} initialCriteria={criteria} />
     </section>
   );
 }

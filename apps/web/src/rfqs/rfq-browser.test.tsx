@@ -1,6 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+
+import { ALL_RFQS } from "./filter-rfqs";
 
 import type { Rfq } from "./rfq";
 import { RfqBrowser } from "./rfq-browser";
@@ -40,6 +42,10 @@ const today = new Date("2026-10-22T12:00:00Z");
 const rows = () => screen.getAllByRole("row").slice(1);
 
 describe("RfqBrowser", () => {
+  beforeEach(() => {
+    window.history.replaceState(null, "", "/?date=2026-10-21");
+  });
+
   it("lists RFQs, each linking to its DIBBS page", () => {
     render(<RfqBrowser rfqs={rfqs} today={today} />);
 
@@ -69,6 +75,30 @@ describe("RfqBrowser", () => {
       "Small Business Set-Aside",
     );
 
+    expect(rows()).toHaveLength(1);
+  });
+
+  it("keeps search and filters in the URL so the view can be shared", async () => {
+    render(<RfqBrowser rfqs={rfqs} today={today} />);
+
+    await userEvent.type(screen.getByRole("searchbox"), "resistor");
+    await userEvent.click(
+      screen.getByRole("checkbox", { name: "Fast award only" }),
+    );
+
+    expect(window.location.search).toBe("?date=2026-10-21&q=resistor&fast=1");
+  });
+
+  it("starts from the filters it was opened with", () => {
+    render(
+      <RfqBrowser
+        rfqs={rfqs}
+        today={today}
+        initialCriteria={{ ...ALL_RFQS, query: "resistor" }}
+      />,
+    );
+
+    expect(screen.getByRole("searchbox")).toHaveValue("resistor");
     expect(rows()).toHaveLength(1);
   });
 });
