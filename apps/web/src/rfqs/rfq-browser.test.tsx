@@ -101,4 +101,32 @@ describe("RfqBrowser", () => {
     expect(screen.getByRole("searchbox")).toHaveValue("resistor");
     expect(rows()).toHaveLength(1);
   });
+
+  it("sorts by quantity, largest first, then flips on a second click", async () => {
+    const solicitations = () =>
+      rows().map((row) => within(row).getAllByRole("cell")[0]!.textContent);
+    render(
+      <RfqBrowser
+        rfqs={[
+          { ...base, quantity: 5 },
+          { ...rfqs[1]!, quantity: 50 },
+        ]}
+        today={today}
+      />,
+    );
+
+    const quantity = screen.getByRole("button", { name: /Qty/ });
+    await userEvent.click(quantity);
+
+    expect(solicitations()[0]).toMatch(/^SPEFA5-27-T-0113/);
+    expect(screen.getByRole("columnheader", { name: /Qty/ })).toHaveAttribute(
+      "aria-sort",
+      "descending",
+    );
+    expect(window.location.search).toBe("?date=2026-10-21&sort=quantity-desc");
+
+    await userEvent.click(quantity);
+
+    expect(solicitations()[0]).toMatch(/^SPE1C1-27-Q-0091/);
+  });
 });

@@ -4,7 +4,13 @@ import { useDeferredValue, useMemo, useState } from "react";
 
 import { ALL_RFQS, filterRfqs, type RfqCriteria } from "./filter-rfqs";
 import type { Rfq } from "./rfq";
-import { withCriteria } from "./rfq-search-params";
+import { withCriteria, withSort } from "./rfq-search-params";
+import {
+  DEFAULT_SORT,
+  sortRfqs,
+  type RfqSort,
+  type RfqSortKey,
+} from "./sort-rfqs";
 
 const CLOSING_WINDOWS = [3, 7, 14, 30];
 
@@ -13,42 +19,41 @@ interface RfqBrowserProps {
   today?: Date;
   /** Filters read from the URL the page was opened with. */
   initialCriteria?: RfqCriteria;
+  initialSort?: RfqSort;
 }
 
 export function RfqBrowser({
   rfqs,
   today: todayProp,
   initialCriteria = ALL_RFQS,
+  initialSort = DEFAULT_SORT,
 }: RfqBrowserProps) {
   // Fixed for the component's lifetime so memoised filtering is not invalidated on every render.
   const [today] = useState(() => todayProp ?? new Date());
   const [criteria, setCriteria] = useState(initialCriteria);
+  const [sort, setSort] = useState(initialSort);
   // Keeps typing responsive while ~2k rows re-render.
   const deferredCriteria = useDeferredValue(criteria);
-  const visible = useMemo(
+  const matching = useMemo(
     () => filterRfqs(rfqs, deferredCriteria, today),
     [rfqs, deferredCriteria, today],
   );
+  const visible = useMemo(() => sortRfqs(matching, sort), [matching, sort]);
   const setAsides = useMemo(
     () => [...new Set(rfqs.map((rfq) => rfq.setAside).filter(Boolean))].sort(),
     [rfqs],
   );
   const changeCriteria = (next: RfqCriteria) => {
     setCriteria(next);
-    // replaceState, not the router: no server round trip per keystroke, and Back skips each keystroke.
-    const params = withCriteria(
-      new URLSearchParams(window.location.search),
-      next,
-    );
-    const query = params.toString();
-    window.history.replaceState(
-      null,
-      "",
-      query === "" ? window.location.pathname : `?${query}`,
-    );
+    replaceSearchParams((params) => withCriteria(params, next));
   };
   const update = (patch: Partial<RfqCriteria>) =>
     changeCriteria({ ...criteria, ...patch });
+  const sortBy = (key: RfqSortKey) => {
+    const next = nextSort(sort, key);
+    setSort(next);
+    replaceSearchParams((params) => withSort(params, next));
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -178,9 +183,20 @@ export function RfqBrowser({
               <th className="px-3 py-2">Solicitation</th>
               <th className="px-3 py-2">NSN</th>
               <th className="px-3 py-2">Item</th>
-              <th className="px-3 py-2 text-right">Qty</th>
+              <SortableHeader
+                label="Qty"
+                sortKey="quantity"
+                sort={sort}
+                onSort={sortBy}
+                className="text-right"
+              />
               <th className="px-3 py-2">Set-aside</th>
-              <th className="px-3 py-2">Return by</th>
+              <SortableHeader
+                label="Return by"
+                sortKey="deadline"
+                sort={sort}
+                onSort={sortBy}
+              />
             </tr>
           </thead>
           <tbody>
@@ -236,6 +252,64 @@ export function RfqBrowser({
         )}
       </div>
     </div>
+  );
+}
+
+function SortableHeader({
+  label,
+  sortKey,
+  sort,
+  onSort,
+  className = "",
+}: {
+  label: string;
+  sortKey: RfqSortKey;
+  sort: RfqSort;
+  onSort: (key: RfqSortKey) => void;
+  className?: string;
+}) {
+  const direction = sort.startsWith(`${sortKey}-`)
+    ? sort.endsWith("-asc")
+      ? "ascending"
+      : "descending"
+    : "none";
+
+  return (
+    <th aria-sort={direction} className={`px-3 py-2 ${className}`}>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className="uppercase hover:text-zinc-900 dark:hover:text-white"
+      >
+        {label}
+        <span aria-hidden className="ml-1">
+          {direction === "ascending"
+            ? "↑"
+            : direction === "descending"
+              ? "↓"
+              : "↕"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
+/** A second click flips the direction; a new column starts where a vendor looks first: biggest orders, soonest deadlines. */
+function nextSort(current: RfqSort, key: RfqSortKey): RfqSort {
+  if (current === `${key}-asc`) return `${key}-desc`;
+  if (current === `${key}-desc`) return `${key}-asc`;
+  return key === "quantity" ? "quantity-desc" : "deadline-asc";
+}
+
+/** replaceState, not the router: no server round trip per keystroke, and Back does not step through each one. */
+function replaceSearchParams(
+  change: (params: URLSearchParams) => URLSearchParams,
+) {
+  const query = change(new URLSearchParams(window.location.search)).toString();
+  window.history.replaceState(
+    null,
+    "",
+    query === "" ? window.location.pathname : `?${query}`,
   );
 }
 

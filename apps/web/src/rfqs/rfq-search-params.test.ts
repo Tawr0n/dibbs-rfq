@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { ALL_RFQS, type RfqCriteria } from "./filter-rfqs";
-import { criteriaFromSearchParams, withCriteria } from "./rfq-search-params";
+import {
+  criteriaFromSearchParams,
+  sortFromSearchParams,
+  withCriteria,
+  withSort,
+} from "./rfq-search-params";
 
 const everyFilter: RfqCriteria = {
   query: "valve",
@@ -46,5 +51,19 @@ describe("RFQ criteria in the URL", () => {
     );
 
     expect(criteriaFromSearchParams(params)).toEqual(ALL_RFQS);
+  });
+
+  it("round-trips the sort, leaving the default out of the URL", () => {
+    const params = withSort(new URLSearchParams("q=valve"), "quantity-desc");
+
+    expect(params.toString()).toBe("q=valve&sort=quantity-desc");
+    expect(sortFromSearchParams(params)).toBe("quantity-desc");
+    expect(withSort(params, "deadline-asc").toString()).toBe("q=valve");
+  });
+
+  it("falls back to the default sort for an unknown value", () => {
+    expect(sortFromSearchParams(new URLSearchParams("sort=price"))).toBe(
+      "deadline-asc",
+    );
   });
 });

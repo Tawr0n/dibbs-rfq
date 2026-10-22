@@ -1,4 +1,7 @@
 import { ALL_RFQS, type RfqCriteria } from "./filter-rfqs";
+import { DEFAULT_SORT, isRfqSort, type RfqSort } from "./sort-rfqs";
+
+const SORT_PARAM = "sort";
 
 /** URL parameter for each filter: short, so a shared link stays readable. */
 const PARAM = {
@@ -46,6 +49,22 @@ export function withCriteria(
       next.set(PARAM[key], typeof value === "boolean" ? "1" : String(value));
     }
   }
+  return next;
+}
+
+export function sortFromSearchParams(params: URLSearchParams): RfqSort {
+  const sort = params.get(SORT_PARAM);
+  return isRfqSort(sort) ? sort : DEFAULT_SORT;
+}
+
+/** Returns a copy of `params` holding the sort, omitted when it is the default. */
+export function withSort(
+  params: URLSearchParams,
+  sort: RfqSort,
+): URLSearchParams {
+  const next = new URLSearchParams(params);
+  if (sort === DEFAULT_SORT) next.delete(SORT_PARAM);
+  else next.set(SORT_PARAM, sort);
   return next;
 }
 

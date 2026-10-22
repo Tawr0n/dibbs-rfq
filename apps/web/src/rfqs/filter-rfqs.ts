@@ -27,7 +27,7 @@ export const ALL_RFQS: RfqCriteria = {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Applies the vendor's criteria and orders by deadline, closing soonest first. */
+/** Keeps the RFQs that match the vendor's criteria, in their original order. */
 export function filterRfqs(
   rfqs: Rfq[],
   criteria: RfqCriteria,
@@ -42,21 +42,19 @@ export function filterRfqs(
           .toISOString()
           .slice(0, 10);
 
-  return rfqs
-    .filter(
-      (rfq) =>
-        (criteria.includeClosed || rfq.returnByDate >= todayIso) &&
-        (query === "" || searchText(rfq).includes(query)) &&
-        (deadline === null || rfq.returnByDate <= deadline) &&
-        (criteria.setAside === "" || rfq.setAside === criteria.setAside) &&
-        rfq.fsc.startsWith(criteria.fsc.trim()) &&
-        (criteria.techDocs === "any" ||
-          rfq.hasTechnicalDocuments === (criteria.techDocs === "with")) &&
-        (!criteria.fastAwardOnly || rfq.fastAward) &&
-        (criteria.minQuantity === null ||
-          (rfq.quantity ?? 0) >= criteria.minQuantity),
-    )
-    .toSorted((a, b) => a.returnByDate.localeCompare(b.returnByDate));
+  return rfqs.filter(
+    (rfq) =>
+      (criteria.includeClosed || rfq.returnByDate >= todayIso) &&
+      (query === "" || searchText(rfq).includes(query)) &&
+      (deadline === null || rfq.returnByDate <= deadline) &&
+      (criteria.setAside === "" || rfq.setAside === criteria.setAside) &&
+      rfq.fsc.startsWith(criteria.fsc.trim()) &&
+      (criteria.techDocs === "any" ||
+        rfq.hasTechnicalDocuments === (criteria.techDocs === "with")) &&
+      (!criteria.fastAwardOnly || rfq.fastAward) &&
+      (criteria.minQuantity === null ||
+        (rfq.quantity ?? 0) >= criteria.minQuantity),
+  );
 }
 
 const searchIndex = new WeakMap<Rfq, string>();

@@ -39,10 +39,10 @@ describe("filterRfqs", () => {
   });
   const rfqs = [helmet, resistor];
 
-  it("returns everything, closing soonest first, with no criteria", () => {
+  it("returns everything, in the given order, with no criteria", () => {
     expect(solicitations(filterRfqs(rfqs, ALL_RFQS, today))).toEqual([
-      "SPEFA5-27-T-0113",
       "SPE1C1-27-Q-0091",
+      "SPEFA5-27-T-0113",
     ]);
   });
 

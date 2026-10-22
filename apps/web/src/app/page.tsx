@@ -3,7 +3,11 @@ import { Suspense } from "react";
 import { fetchRfqs } from "@/rfqs/fetch-rfqs";
 import { RfqBrowser } from "@/rfqs/rfq-browser";
 import type { RfqCriteria } from "@/rfqs/filter-rfqs";
-import { criteriaFromSearchParams } from "@/rfqs/rfq-search-params";
+import {
+  criteriaFromSearchParams,
+  sortFromSearchParams,
+} from "@/rfqs/rfq-search-params";
+import type { RfqSort } from "@/rfqs/sort-rfqs";
 
 type SearchParams = PageProps<"/">["searchParams"];
 
@@ -69,14 +73,14 @@ function DateForm({ date }: { date?: string }) {
 
 async function RfqSection({ searchParams }: { searchParams: SearchParams }) {
   const date = await requestedDate(searchParams);
-  const criteria = criteriaFromSearchParams(
-    toUrlSearchParams(await searchParams),
-  );
+  const params = toUrlSearchParams(await searchParams);
+  const criteria = criteriaFromSearchParams(params);
+  const sort = sortFromSearchParams(params);
 
   // Keyed by date so picking another day shows the loading state again.
   return (
     <Suspense key={date ?? "latest"} fallback={<Loading />}>
-      <Rfqs date={date} criteria={criteria} />
+      <Rfqs date={date} criteria={criteria} sort={sort} />
     </Suspense>
   );
 }
@@ -92,9 +96,11 @@ function toUrlSearchParams(params: Awaited<SearchParams>): URLSearchParams {
 async function Rfqs({
   date,
   criteria,
+  sort,
 }: {
   date?: string;
   criteria: RfqCriteria;
+  sort: RfqSort;
 }) {
   const result = await fetchRfqs(date);
 
@@ -103,7 +109,11 @@ async function Rfqs({
       <h2 className="text-sm text-zinc-600 dark:text-zinc-400">
         Issued on <strong>{result.date}</strong>
       </h2>
-      <RfqBrowser rfqs={result.rfqs} initialCriteria={criteria} />
+      <RfqBrowser
+        rfqs={result.rfqs}
+        initialCriteria={criteria}
+        initialSort={sort}
+      />
     </section>
   );
 }
