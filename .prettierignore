@@ -3,3 +3,4 @@ pnpm-lock.yaml
 dist
 coverage
 next-env.d.ts
+**/test/fixtures
