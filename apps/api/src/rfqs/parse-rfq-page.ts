@@ -22,6 +22,15 @@ export function parseRfqPage(html: string): RfqPage {
         .find("img")
         .toArray()
         .map((img) => $(img).attr("alt")?.trim() ?? "");
+      // Usually: PDF link + "Package View" link. With no PDF, the first link
+      // goes straight to the package and reads "<number><br>--»Attachments".
+      const firstLink = solicitation.find("a").first();
+      const hrefs = solicitation
+        .find("a")
+        .toArray()
+        .map((link) => $(link).attr("href") ?? "");
+      const packageUrl = hrefs.find(isPackageUrl) ?? "";
+      const firstHref = firstLink.attr("href");
       const nsn = cell("lblNsn").text().trim();
       const [purchaseRequest = "", quantityLine = ""] = (
         cell("lblPr").html() ?? ""
@@ -31,7 +40,7 @@ export function parseRfqPage(html: string): RfqPage {
       const quantity = Number.parseInt(quantityLine.replace(/\D/g, ""), 10);
 
       return {
-        solicitationNumber: solicitation.find("a").first().text().trim(),
+        solicitationNumber: firstLink.contents().first().text().trim(),
         nsn,
         fsc: nsn.replace(/\D/g, "").slice(0, 4),
         nomenclature: cell("lblNomenclature").text().trim(),
@@ -44,8 +53,9 @@ export function parseRfqPage(html: string): RfqPage {
         quantity: Number.isNaN(quantity) ? null : quantity,
         issuedDate: toIsoDate(cell("lblIssued").text()),
         returnByDate: toIsoDate(cell("lblReturnBy").text()),
-        packageUrl: solicitation.find("a.SubMenuLink").attr("href") ?? "",
-        documentUrl: solicitation.find("a").first().attr("href") ?? null,
+        packageUrl,
+        documentUrl:
+          firstHref === undefined || isPackageUrl(firstHref) ? null : firstHref,
       };
     });
 
@@ -55,6 +65,10 @@ export function parseRfqPage(html: string): RfqPage {
   );
 
   return { rfqs, totalRecords: Number.isNaN(totalRecords) ? 0 : totalRecords };
+}
+
+function isPackageUrl(href: string): boolean {
+  return /\/rfq\/rfqrec\.aspx\?/i.test(href);
 }
 
 /** DIBBS dates are MM-DD-YYYY. */

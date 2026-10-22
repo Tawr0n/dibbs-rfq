@@ -44,4 +44,24 @@ describe("parseRfqPage", () => {
     expect(rfq?.fastAward).toBe(true);
     expect(rfq?.setAside).toMatch(/set.?aside/i);
   });
+
+  it("reads an RFQ with no PDF, whose solicitation links straight to its package", () => {
+    const [rfq] = parseRfqPage(
+      readFileSync(
+        join(
+          import.meta.dirname,
+          "../../test/fixtures/rfq-recs-no-document-row.html",
+        ),
+        "utf8",
+      ),
+    ).rfqs;
+
+    expect(rfq).toMatchObject({
+      solicitationNumber: "SPE3SE-27-Q-0052",
+      packageUrl:
+        "https://www.dibbs.bsm.dla.mil/RFQ/RFQRec.aspx?sn=SPE3SE27Q0052",
+      documentUrl: null,
+      setAside: "Small Business Set-Aside",
+    });
+  });
 });
