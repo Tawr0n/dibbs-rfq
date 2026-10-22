@@ -125,7 +125,15 @@ export function RfqBrowser({ rfqs, today: todayProp }: RfqBrowserProps) {
           />
           <span>Fast award only</span>
         </label>
-        <div className="flex items-end justify-between gap-2 sm:col-span-2">
+        <label className="flex items-center gap-2 self-end pb-2 text-sm">
+          <input
+            type="checkbox"
+            checked={criteria.includeClosed}
+            onChange={(e) => update({ includeClosed: e.target.checked })}
+          />
+          <span>Include closed</span>
+        </label>
+        <div className="flex items-end justify-between gap-2">
           <p
             className="pb-2 text-sm text-zinc-600 dark:text-zinc-400"
             aria-live="polite"

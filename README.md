@@ -18,7 +18,7 @@ On startup the API pulls the latest issue date from DIBBS (~1–2 min for ~1.7k 
 ## What it does
 
 - **Pulls** every RFQ issued on a date: solicitation, NSN, FSC, item name, quantity, PR, set-aside, fast-award flag, tech-docs flag, issue and return-by dates, links.
-- **Browse** as a table sorted by deadline (closing soonest first), with days left next to each date.
+- **Browse** as a table sorted by deadline (closing soonest first), with days left next to each date. RFQs already past their return-by date are hidden unless "Include closed" is ticked.
 - **Search** across solicitation, NSN, item name and PR; dashes are optional (`5905010035779` finds `5905-01-003-5779`).
 - **Filter** by what drives a go/no-go decision:
   - **Closes within N days**: is there time to prepare a quote?

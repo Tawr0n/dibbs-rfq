@@ -14,3 +14,4 @@ One line per decision: what, why, what was traded off.
 - The cache is warmed on API startup so the first visitor does not wait for a cold scrape.
 - RFQ type duplicated in web (one file) instead of a shared package: wiring a TS package into both Nest (nodenext ESM) and Next costs more time than it saves here.
 - Server component + `<Suspense>` streams the page shell immediately while a cold date is being scraped.
+- Closed RFQs (return-by date in the past) are hidden by default: live data showed amended RFQs re-issued after their deadline, which a vendor cannot quote.

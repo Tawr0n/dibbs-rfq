@@ -57,6 +57,26 @@ describe("filterRfqs", () => {
     ).toEqual(["SPEFA5-27-T-0113"]);
   });
 
+  it("hides RFQs already past their return-by date unless asked", () => {
+    const closed = rfq({
+      solicitationNumber: "SPE7M1-26-U-6227",
+      returnByDate: "2026-10-09",
+    });
+
+    expect(
+      solicitations(filterRfqs([closed, helmet], ALL_RFQS, today)),
+    ).toEqual(["SPE1C1-27-Q-0091"]);
+    expect(
+      solicitations(
+        filterRfqs(
+          [closed, helmet],
+          { ...ALL_RFQS, includeClosed: true },
+          today,
+        ),
+      ),
+    ).toEqual(["SPE7M1-26-U-6227", "SPE1C1-27-Q-0091"]);
+  });
+
   it("keeps RFQs closing within N days", () => {
     const result = filterRfqs(
       rfqs,

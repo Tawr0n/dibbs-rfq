@@ -10,6 +10,8 @@ export interface RfqCriteria {
   techDocs: "any" | "with" | "without";
   fastAwardOnly: boolean;
   minQuantity: number | null;
+  /** Show RFQs whose return-by date has passed (hidden by default: they can't be quoted). */
+  includeClosed: boolean;
 }
 
 export const ALL_RFQS: RfqCriteria = {
@@ -20,6 +22,7 @@ export const ALL_RFQS: RfqCriteria = {
   techDocs: "any",
   fastAwardOnly: false,
   minQuantity: null,
+  includeClosed: false,
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -31,6 +34,7 @@ export function filterRfqs(
   today: Date,
 ): Rfq[] {
   const query = normalize(criteria.query);
+  const todayIso = today.toISOString().slice(0, 10);
   const deadline =
     criteria.closesWithinDays === null
       ? null
@@ -41,6 +45,7 @@ export function filterRfqs(
   return rfqs
     .filter(
       (rfq) =>
+        (criteria.includeClosed || rfq.returnByDate >= todayIso) &&
         (query === "" || searchText(rfq).includes(query)) &&
         (deadline === null || rfq.returnByDate <= deadline) &&
         (criteria.setAside === "" || rfq.setAside === criteria.setAside) &&
