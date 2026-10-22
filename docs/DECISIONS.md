@@ -15,3 +15,4 @@ One line per decision: what, why, what was traded off.
 - RFQ type duplicated in web (one file) instead of a shared package: wiring a TS package into both Nest (nodenext ESM) and Next costs more time than it saves here.
 - Server component + `<Suspense>` streams the page shell immediately while a cold date is being scraped.
 - Closed RFQs (return-by date in the past) are hidden by default: live data showed amended RFQs re-issued after their deadline, which a vendor cannot quote.
+- Known limit: some rows report an issue date one day after the requested date (seen live for 2026-10-21). Not yet verified whether DIBBS lists them that way or a postback page drifts; next step is to compare a page fetched directly in DIBBS.
