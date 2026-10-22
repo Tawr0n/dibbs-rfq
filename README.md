@@ -27,6 +27,9 @@ On startup the API pulls the latest issue date from DIBBS (~1–2 min for ~1.7k 
   - **Technical documents**: can I build it from drawings, or is it a known commercial part?
   - **Min quantity**: is the order worth the effort?
   - **Fast award only**: micro-purchases DLA may award before the deadline, where speed wins.
+- **Presets** in one click: _Closing this week_, _Small business + drawings_, _Fast award_: the three questions a vendor asks first.
+- **Sort** by quantity or deadline from the column headers.
+- **Share** a view: search, filters and sort live in the URL, so a link (or a reload) opens exactly the same list.
 - **Open** each solicitation on its DIBBS package page in a new tab.
 - **Pick another issue date** with the date picker.
 
