@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Interview task",
-  description: "Interview task",
+  title: "DIBBS RFQ Finder",
+  description: "Search and filter daily DLA DIBBS Requests for Quotation",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
