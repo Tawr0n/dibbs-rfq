@@ -129,4 +129,15 @@ describe("RfqBrowser", () => {
 
     expect(solicitations()[0]).toMatch(/^SPE1C1-27-Q-0091/);
   });
+
+  it("applies a preset in one click and shows it as active", async () => {
+    render(<RfqBrowser rfqs={rfqs} today={today} />);
+
+    const fastAward = screen.getByRole("button", { name: "Fast award" });
+    await userEvent.click(fastAward);
+
+    expect(fastAward).toHaveAttribute("aria-pressed", "true");
+    expect(rows()).toHaveLength(1);
+    expect(window.location.search).toBe("?date=2026-10-21&fast=1");
+  });
 });

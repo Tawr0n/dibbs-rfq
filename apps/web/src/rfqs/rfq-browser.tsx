@@ -4,6 +4,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 
 import { ALL_RFQS, filterRfqs, type RfqCriteria } from "./filter-rfqs";
 import type { Rfq } from "./rfq";
+import { applyPreset, isPresetActive, RFQ_PRESETS } from "./rfq-presets";
 import { withCriteria, withSort } from "./rfq-search-params";
 import {
   DEFAULT_SORT,
@@ -57,6 +58,34 @@ export function RfqBrowser({
 
   return (
     <div className="flex flex-col gap-4">
+      <div
+        role="group"
+        aria-label="Presets"
+        className="flex flex-wrap items-center gap-2 text-sm"
+      >
+        <span className="font-medium text-zinc-600 dark:text-zinc-400">
+          Quick views:
+        </span>
+        {RFQ_PRESETS.map((preset) => {
+          const active = isPresetActive(criteria, preset);
+          return (
+            <button
+              key={preset.label}
+              type="button"
+              aria-pressed={active}
+              title={preset.rationale}
+              onClick={() => changeCriteria(applyPreset(criteria, preset))}
+              className={`rounded-full border px-3 py-1 ${
+                active
+                  ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                  : "border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              }`}
+            >
+              {preset.label}
+            </button>
+          );
+        })}
+      </div>
       <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-zinc-800 dark:bg-zinc-900">
         <label className="flex flex-col gap-1 text-sm sm:col-span-2 lg:col-span-4">
           <span className="font-medium">Search</span>
