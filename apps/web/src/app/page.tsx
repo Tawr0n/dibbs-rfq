@@ -13,7 +13,7 @@ type SearchParams = PageProps<"/">["searchParams"];
 
 export default function Home({ searchParams }: PageProps<"/">) {
   return (
-    <main className="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 p-4 sm:p-8">
+    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 p-4 sm:p-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">DIBBS RFQ Finder</h1>
@@ -105,7 +105,7 @@ async function Rfqs({
   const result = await fetchRfqs(date);
 
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex min-w-0 flex-col gap-2">
       <h2 className="text-sm text-zinc-600 dark:text-zinc-400">
         Issued on <strong>{result.date}</strong>
       </h2>

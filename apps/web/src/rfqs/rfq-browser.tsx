@@ -57,7 +57,7 @@ export function RfqBrowser({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       <div
         role="group"
         aria-label="Presets"
@@ -86,7 +86,7 @@ export function RfqBrowser({
           );
         })}
       </div>
-      <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="grid grid-cols-1 gap-3 rounded-lg border border-zinc-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-zinc-800 dark:bg-zinc-900">
         <label className="flex flex-col gap-1 text-sm sm:col-span-2 lg:col-span-4">
           <span className="font-medium">Search</span>
           <input
