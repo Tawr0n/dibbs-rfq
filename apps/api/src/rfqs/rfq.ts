@@ -6,7 +6,10 @@ export interface Rfq {
   fsc: string;
   nomenclature: string;
   hasTechnicalDocuments: boolean;
+  /** e.g. "Small Business Set-Aside", "Unrestricted/Not Set Aside". */
   setAside: string;
+  /** Micro-purchase: DLA may award before the return-by date, so speed wins. */
+  fastAward: boolean;
   status: string;
   purchaseRequest: string;
   quantity: number | null;
@@ -19,3 +22,6 @@ export interface Rfq {
   /** The solicitation PDF. */
   documentUrl: string | null;
 }
+
+/** Calendar date as YYYY-MM-DD. */
+export type IsoDate = `${number}-${number}-${number}`;

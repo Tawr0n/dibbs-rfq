@@ -18,6 +18,10 @@ export function parseRfqPage(html: string): RfqPage {
     .map((row): Rfq => {
       const cell = (suffix: string) => $(row).find(`[id$='_${suffix}']`);
       const solicitation = cell("lblSolicitation");
+      const badges = solicitation
+        .find("img")
+        .toArray()
+        .map((img) => $(img).attr("alt")?.trim() ?? "");
       const nsn = cell("lblNsn").text().trim();
       const [purchaseRequest = "", quantityLine = ""] = (
         cell("lblPr").html() ?? ""
@@ -33,7 +37,8 @@ export function parseRfqPage(html: string): RfqPage {
         nomenclature: cell("lblNomenclature").text().trim(),
         hasTechnicalDocuments:
           cell("lblTechnicalDocuments").find("a").length > 0,
-        setAside: solicitation.find("img").attr("alt")?.trim() ?? "",
+        setAside: badges.find((badge) => /set.?aside/i.test(badge)) ?? "",
+        fastAward: badges.some((badge) => badge.startsWith("Fast Award")),
         status: cell("lblStatus").children("span").first().text().trim(),
         purchaseRequest,
         quantity: Number.isNaN(quantity) ? null : quantity,

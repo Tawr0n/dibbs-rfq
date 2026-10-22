@@ -23,6 +23,7 @@ describe("parseRfqPage", () => {
       nomenclature: "PAD, HELMET, AIRCRAFT",
       hasTechnicalDocuments: false,
       setAside: "Unrestricted/Not Set Aside",
+      fastAward: false,
       status: "Open",
       purchaseRequest: "7018738031",
       quantity: 600,
@@ -33,5 +34,14 @@ describe("parseRfqPage", () => {
       documentUrl:
         "https://dibbs2.bsm.dla.mil/Downloads/RFQ/1/SPE1C127Q0091.PDF",
     });
+  });
+
+  it("separates the fast-award flag from the set-aside type", () => {
+    const rfq = page.rfqs.find(
+      (r) => r.solicitationNumber === "SPE1C1-27-T-0039",
+    );
+
+    expect(rfq?.fastAward).toBe(true);
+    expect(rfq?.setAside).toMatch(/set.?aside/i);
   });
 });
