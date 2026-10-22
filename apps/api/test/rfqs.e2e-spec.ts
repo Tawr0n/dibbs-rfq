@@ -55,6 +55,15 @@ describe("GET /rfqs (e2e)", () => {
     expect(dibbs.fetchIssuedOn).toHaveBeenCalledTimes(1);
   });
 
+  it("re-serves today's still-growing list from memory instead of re-scraping", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+
+    await request(app.getHttpServer()).get(`/rfqs?date=${today}`).expect(200);
+    await request(app.getHttpServer()).get(`/rfqs?date=${today}`).expect(200);
+
+    expect(dibbs.fetchIssuedOn).toHaveBeenCalledTimes(1);
+  });
+
   it("falls back to the latest day with RFQs when no date is given", async () => {
     dibbs.fetchIssuedOn
       .mockReset()

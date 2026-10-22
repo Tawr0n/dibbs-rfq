@@ -4,6 +4,8 @@ import { RfqCache } from "./rfq-cache.js";
 import type { IsoDate, Rfq } from "./rfq.js";
 
 const MAX_LOOKBACK_DAYS = 7;
+/** How long today's (still growing) or empty lists are served before re-scraping. */
+const RECENT_TTL_MS = 30 * 60 * 1000;
 
 export interface RfqsForDate {
   date: IsoDate;
@@ -13,6 +15,10 @@ export interface RfqsForDate {
 @Injectable()
 export class RfqsService {
   private readonly inFlight = new Map<IsoDate, Promise<Rfq[]>>();
+  private readonly recent = new Map<
+    IsoDate,
+    { rfqs: Rfq[]; fetchedAt: number }
+  >();
 
   constructor(
     private readonly dibbs: DibbsClient,
@@ -42,13 +48,20 @@ export class RfqsService {
   }
 
   private async scrapeOnce(date: IsoDate): Promise<Rfq[]> {
+    const fresh = this.recent.get(date);
+    if (fresh && Date.now() - fresh.fetchedAt < RECENT_TTL_MS)
+      return fresh.rfqs;
+
     const cached = await this.cache.get(date);
     if (cached) return cached;
 
     const rfqs = await this.dibbs.fetchIssuedOn(date);
-    // Today's list still grows during the day, and an empty day may be a weekend: only cache complete, non-empty past days.
+    // Today's list still grows during the day, and an empty day may be a weekend:
+    // persist only complete, non-empty past days; keep the rest in memory briefly.
     if (rfqs.length > 0 && date < toIsoDate(new Date())) {
       await this.cache.set(date, rfqs);
+    } else {
+      this.recent.set(date, { rfqs, fetchedAt: Date.now() });
     }
     return rfqs;
   }
